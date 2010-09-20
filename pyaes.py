@@ -45,7 +45,66 @@ class AES(object):
     def __init__(self, key, mode, IV=None):
         self.mode = mode
         self.IV = IV
+
+        self.setkey(key)
+
+    def setkey(self, key):
+        """Sets the key and performs key expansion."""
+
         self.key = key
+        self.key_size = len(key)
+
+        if self.key_size == 16:
+            self.rounds = 10
+        elif self.key_size == 24:
+            raise NotImplementedError
+            #self.rounds = 12
+        elif self.key_size == 32:
+            raise NotImplementedError
+            #self.rounds = 14
+        else:
+            raise ValueError, "Key length must be 16, 24 or 32 bytes"
+
+        self.expand_key()
+
+    def expand_key(self):
+        """Performs AES key expansion on self.key and stores in self.exkey"""
+
+        # The key schedule specifies how parts of the key are fed into the
+        # cipher's round functions. "Key expansion" means performing this
+        # schedule in advance. Almost all implementations do this.
+        #
+        # Here's a description of AES key schedule:
+        # http://en.wikipedia.org/wiki/Rijndael_key_schedule
+
+        # The expanded key starts with the actual key itself
+        exkey = array('B', self.key)
+
+        # 4-byte temporary variable for key expansion
+        word = exkey[-4:]
+        for i in xrange(1, self.rounds + 1):
+
+            #### key schedule core:
+            # left-rotate by 1 byte
+            word = word[1:4] + word[0:1]
+
+            # apply S-box to all bytes
+            for j in xrange(4):
+                word[j] = aes_sbox[word[j]]
+
+            # apply the Rcon table to the leftmost byte
+            word[0] = word[0] ^ aes_Rcon[i]
+            #### end key schedule core
+
+            for z in xrange(4):
+                for j in xrange(4):
+                    # mix in bytes from the last subkey
+                    word[j] ^= exkey[-self.key_size + j]
+                exkey.extend(word)
+
+            # TODO: implement expansion for 192- and 256-bit keys
+
+        self.exkey = exkey
 
     def encrypt(self, data):
         raise NotImplementedError
