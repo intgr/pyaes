@@ -51,7 +51,7 @@ from array import array
 # Globals mandated by PEP 272:
 # http://www.python.org/dev/peps/pep-0272/
 MODE_ECB = 1
-#MODE_CBC = 2
+MODE_CBC = 2
 #MODE_CTR = 6
 
 block_size = 16
@@ -60,6 +60,11 @@ key_size = None
 def new(key, mode, IV=None):
     if mode == MODE_ECB:
         return ECBMode(AES(key))
+    elif mode == MODE_CBC:
+        if IV is None:
+            raise ValueError, "CBC mode needs an IV value!"
+
+        return CBCMode(AES(key), IV)
     else:
         raise NotImplementedError
 
@@ -297,6 +302,71 @@ class ECBMode(object):
         """Decrypt data in ECB mode"""
 
         return self.ecb(data, self.cipher.decrypt_block)
+
+#### CBC mode
+
+class CBCMode(object):
+    """Cipher Block Chaining (CBC) mode encryption.
+
+    TODO: Write description.
+    """
+
+    def __init__(self, cipher, IV):
+        self.cipher = cipher
+        self.block_size = cipher.block_size
+        self.IV = array('B', IV)
+
+    def encrypt(self, data):
+        """Encrypt data in CBC mode"""
+
+        block_size = self.block_size
+        if len(data) % block_size != 0:
+            raise ValueError, "Plaintext length must be multiple of 16"
+
+        data = array('B', data)
+        IV = self.IV
+
+        for offset in xrange(0, len(data), block_size):
+            block = data[offset : offset+block_size]
+
+            # Perform CBC chaining
+            for i in xrange(block_size):
+                block[i] ^= IV[i]
+
+            self.cipher.encrypt_block(block)
+            data[offset : offset+block_size] = block
+            IV = block
+
+        self.IV = IV
+        return data.tostring()
+
+    def decrypt(self, data):
+        """Decrypt data in CBC mode"""
+
+        block_size = self.block_size
+        if len(data) % block_size != 0:
+            raise ValueError, "Ciphertext length must be multiple of 16"
+
+        data = array('B', data)
+        IV = self.IV
+
+        for offset in xrange(0, len(data), block_size):
+            ctext = data[offset : offset+block_size]
+            block = ctext[:]
+            self.cipher.decrypt_block(block)
+
+            # Perform CBC chaining
+            #for i in xrange(block_size):
+            #    data[offset + i] ^= IV[i]
+            for i in xrange(block_size):
+                block[i] ^= IV[i]
+            data[offset : offset+block_size] = block
+
+            IV = ctext
+            #data[offset : offset+block_size] = block
+
+        self.IV = IV
+        return data.tostring()
 
 ####
 
