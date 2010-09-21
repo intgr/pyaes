@@ -168,6 +168,15 @@ class AES(object):
 
         #print 'ShiftRows  :', b
 
+    def shift_rows_inv(self, b):
+        """Similar to shift_rows above, but performed in inverse for decryption."""
+
+        b[ 5], b[ 9], b[13], b[ 1] = b[1], b[5], b[ 9], b[13]
+        b[10], b[14], b[ 2], b[ 6] = b[2], b[6], b[10], b[14]
+        b[15], b[ 3], b[ 7], b[11] = b[3], b[7], b[11], b[15]
+
+        #print 'ShiftRows  :', b
+
     def mix_columns(self, block):
         """MixColumns step. Mixes the values in each column"""
 
@@ -189,6 +198,29 @@ class AES(object):
 
         #print 'MixColumns :', block
 
+    def mix_columns_inv(self, block):
+        """Similar to mix_columns above, but performed in inverse for decryption."""
+
+        # Cache global multiplication tables (see below)
+        mul_9  = gf_mul_by_9
+        mul_11 = gf_mul_by_11
+        mul_13 = gf_mul_by_13
+        mul_14 = gf_mul_by_14
+
+        # Since we're dealing with a transposed matrix, columns are already
+        # sequential
+        for i in xrange(4):
+            col = i * 4
+
+            v0, v1, v2, v3 = block[col : col+4]
+
+            block[col  ] = mul_14[v0] ^ mul_9[v3] ^ mul_13[v2] ^ mul_11[v1]
+            block[col+1] = mul_14[v1] ^ mul_9[v0] ^ mul_13[v3] ^ mul_11[v2]
+            block[col+2] = mul_14[v2] ^ mul_9[v1] ^ mul_13[v0] ^ mul_11[v3]
+            block[col+3] = mul_14[v3] ^ mul_9[v2] ^ mul_13[v1] ^ mul_11[v0]
+
+        #print 'MixColumns :', block
+
     def encrypt_block(self, block):
         """Encrypts a single block. This is the main AES function"""
 
@@ -207,6 +239,26 @@ class AES(object):
         # no mix_columns step in the last round
         self.add_round_key(block, self.rounds)
 
+    def decrypt_block(self, block):
+        """Decrypts a single block. This is the main AES decryption function"""
+
+        # For efficiency reasons, the state between steps is transmitted via a
+        # mutable array, not returned.
+        self.add_round_key(block, self.rounds)
+
+        # count rounds down from 15 ... 1
+        for round in xrange(self.rounds-1, 0, -1):
+            self.shift_rows_inv(block)
+            self.sub_bytes(block, aes_inv_sbox)
+            self.add_round_key(block, round)
+            self.mix_columns_inv(block)
+
+        self.shift_rows_inv(block)
+        self.sub_bytes(block, aes_inv_sbox)
+        self.add_round_key(block, 0)
+        # no mix_columns step in the last round
+
+
 #### ECB mode implementation
 
 class ECBMode(object):
@@ -220,8 +272,8 @@ class ECBMode(object):
         self.cipher = cipher
         self.block_size = cipher.block_size
 
-    def encrypt(self, data):
-        """Encrypt data in ECB mode"""
+    def ecb(self, data, block_func):
+        """Perform ECB mode with the given function"""
 
         if len(data) % self.block_size != 0:
             raise ValueError, "Plaintext length must be multiple of 16"
@@ -231,15 +283,20 @@ class ECBMode(object):
 
         for offset in xrange(0, len(data), block_size):
             block = data[offset : offset+block_size]
-            self.cipher.encrypt_block(block)
+            block_func(block)
             data[offset : offset+block_size] = block
 
         return data.tostring()
 
+    def encrypt(self, data):
+        """Encrypt data in ECB mode"""
+
+        return self.ecb(data, self.cipher.encrypt_block)
+
     def decrypt(self, data):
         """Decrypt data in ECB mode"""
 
-        raise NotImplementedError
+        return self.ecb(data, self.cipher.decrypt_block)
 
 ####
 
@@ -259,6 +316,11 @@ def galois_multiply(a, b):
 # Precompute the multiplication tables for encryption
 gf_mul_by_2  = array('B', [galois_multiply(x,  2) for x in range(256)])
 gf_mul_by_3  = array('B', [galois_multiply(x,  3) for x in range(256)])
+# ... for decryption
+gf_mul_by_9  = array('B', [galois_multiply(x,  9) for x in range(256)])
+gf_mul_by_11 = array('B', [galois_multiply(x, 11) for x in range(256)])
+gf_mul_by_13 = array('B', [galois_multiply(x, 13) for x in range(256)])
+gf_mul_by_14 = array('B', [galois_multiply(x, 14) for x in range(256)])
 
 ####
 
