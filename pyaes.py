@@ -1,8 +1,10 @@
-"""Simple AES cipher implementation in Python following PEP 272 API
+"""Simple AES cipher implementation in pure Python following PEP-272 API
 
-The first goal of this module is to be as fast as reasonable in Python while
-still being Pythonic and readable/understandable. It is licensed under the
-permissible MIT license.
+Homepage: https://bitbucket.org/intgr/pyaes/
+
+The goal of this module is to be as fast as reasonable in Python while still
+being Pythonic and readable/understandable. It is licensed under the permissive
+MIT license.
 
 Hopefully the code is readable and commented enough that it can serve as an
 introduction to the AES cipher for Python coders. In fact, it should go along
@@ -332,10 +334,14 @@ class ECBMode(object):
 #### CBC mode
 
 class CBCMode(object):
-    """Cipher Block Chaining (CBC) mode encryption.
+    """Cipher Block Chaining (CBC) mode encryption. This mode avoids content leaks.
 
-    TODO: Write description.
+    In CBC encryption, each plaintext block is XORed with the ciphertext block
+    preceding it; decryption is simply the inverse.
     """
+
+    # A better explanation of CBC can be found here:
+    # http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Cipher-block_chaining_.28CBC.29
 
     def __init__(self, cipher, IV):
         self.cipher = cipher
