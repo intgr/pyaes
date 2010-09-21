@@ -48,17 +48,27 @@ there clears it up.
 
 from array import array
 
+# Globals mandated by PEP 272:
+# http://www.python.org/dev/peps/pep-0272/
 MODE_ECB = 1
 #MODE_CBC = 2
 #MODE_CTR = 6
 
+block_size = 16
+key_size = None
+
+def new(key, mode, IV=None):
+    if mode == MODE_ECB:
+        return ECBMode(AES(key))
+    else:
+        raise NotImplementedError
+
+#### AES cipher implementation
+
 class AES(object):
     block_size = 16
 
-    def __init__(self, key, mode, IV=None):
-        self.mode = mode
-        self.IV = IV
-
+    def __init__(self, key):
         self.setkey(key)
 
     def setkey(self, key):
@@ -197,18 +207,38 @@ class AES(object):
         # no mix_columns step in the last round
         self.add_round_key(block, self.rounds)
 
+#### ECB mode implementation
+
+class ECBMode(object):
+    """Electronic CodeBook (ECB) mode encryption.
+
+    Basically this mode applies the cipher function to each block individually;
+    no feedback is done. NB! This is insecure for almost all purposes
+    """
+
+    def __init__(self, cipher):
+        self.cipher = cipher
+        self.block_size = cipher.block_size
+
     def encrypt(self, data):
-        """Encrypt data"""
+        """Encrypt data in ECB mode"""
 
         if len(data) % self.block_size != 0:
             raise ValueError, "Plaintext length must be multiple of 16"
 
-        block = array('B', data)
-        self.encrypt_block(block)
+        block_size = self.block_size
+        data = array('B', data)
 
-        return block.tostring()
+        for offset in xrange(0, len(data), block_size):
+            block = data[offset : offset+block_size]
+            self.cipher.encrypt_block(block)
+            data[offset : offset+block_size] = block
+
+        return data.tostring()
 
     def decrypt(self, data):
+        """Decrypt data in ECB mode"""
+
         raise NotImplementedError
 
 ####
@@ -231,12 +261,6 @@ gf_mul_by_2  = array('B', [galois_multiply(x,  2) for x in range(256)])
 gf_mul_by_3  = array('B', [galois_multiply(x,  3) for x in range(256)])
 
 ####
-
-# Globals mandated by PEP 272:
-# http://www.python.org/dev/peps/pep-0272/
-new = AES
-block_size = AES.block_size
-key_size = None
 
 # The S-box is a 256-element array, that maps a single byte value to another
 # byte value. Since it's designed to be reversible, each value occurs only once
