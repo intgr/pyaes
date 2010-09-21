@@ -69,12 +69,6 @@ class KATRunner(object):
         print '%s: %3d OK %3d skipped' % (basename, self.cnt_ok, self.cnt_skipped)
 
     def do_test(self):
-        #testname = '%s %d' % (self.basename, self.test_no)
-        if len(self.key) > 16:
-            #print testname, 'skipping: key_size=%d' % len(self.key)
-            self.cnt_skipped += 1
-            return
-
         aes = pyaes.new(self.key, self.mode, self.iv)
 
         if self.function == 'encrypt':

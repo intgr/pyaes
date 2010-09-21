@@ -85,11 +85,9 @@ class AES(object):
         if self.key_size == 16:
             self.rounds = 10
         elif self.key_size == 24:
-            raise NotImplementedError
-            #self.rounds = 12
+            self.rounds = 12
         elif self.key_size == 32:
-            raise NotImplementedError
-            #self.rounds = 14
+            self.rounds = 14
         else:
             raise ValueError, "Key length must be 16, 24 or 32 bytes"
 
@@ -107,6 +105,14 @@ class AES(object):
 
         # The expanded key starts with the actual key itself
         exkey = array('B', self.key)
+
+        # extra key expansion steps
+        if self.key_size == 16:
+            extra_cnt = 0
+        elif self.key_size == 24:
+            extra_cnt = 2
+        else:
+            extra_cnt = 3
 
         # 4-byte temporary variable for key expansion
         word = exkey[-4:]
@@ -130,7 +136,20 @@ class AES(object):
                     word[j] ^= exkey[-self.key_size + j]
                 exkey.extend(word)
 
-            # TODO: implement expansion for 192- and 256-bit keys
+            # Special substitution step for 256-bit key
+            if self.key_size == 32:
+                for j in xrange(4):
+                    # mix in bytes from the last subkey XORed with S-box of
+                    # current word bytes
+                    word[j] = aes_sbox[word[j]] ^ exkey[-self.key_size + j]
+                exkey.extend(word)
+
+            # Twice for 192-bit key, thrice for 256-bit key
+            for z in xrange(extra_cnt):
+                for j in xrange(4):
+                    # mix in bytes from the last subkey
+                    word[j] ^= exkey[-self.key_size + j]
+                exkey.extend(word)
 
         self.exkey = exkey
 
