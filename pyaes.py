@@ -116,7 +116,8 @@ class AES(object):
 
         # 4-byte temporary variable for key expansion
         word = exkey[-4:]
-        for i in xrange(1, self.rounds + 1):
+        # Each expansion cycle uses 'i' once for Rcon table lookup
+        for i in xrange(1, 11):
 
             #### key schedule core:
             # left-rotate by 1 byte
@@ -135,6 +136,10 @@ class AES(object):
                     # mix in bytes from the last subkey
                     word[j] ^= exkey[-self.key_size + j]
                 exkey.extend(word)
+
+            # Last key expansion cycle always finishes here
+            if len(exkey) >= (self.rounds+1) * self.block_size:
+                break
 
             # Special substitution step for 256-bit key
             if self.key_size == 32:
