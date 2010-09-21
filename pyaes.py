@@ -138,8 +138,10 @@ class AES(object):
         """AddRoundKey step in AES. This is where the key is mixed into plaintext"""
 
         offset = round * 16
+        exkey = self.exkey
+
         for i in xrange(16):
-            block[i] ^= self.exkey[offset + i]
+            block[i] ^= exkey[offset + i]
 
         #print 'AddRoundKey:', block
 
