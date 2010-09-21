@@ -4,6 +4,10 @@
 
 Actual data files are in the KAT_AES/ directory. Can be downloaded here:
 http://csrc.nist.gov/groups/STM/cavp/index.html
+
+Apologies for the crudeness of this script, but porting it to the Python
+unittest framework seemed like a waste of time.
+
 """
 
 import os
@@ -12,10 +16,9 @@ import unittest
 
 # Some magic to locate the 'pyaes' module relative to tests
 path = os.path.dirname(__file__)
-if path and path != '.':
-    sys.path.append(os.path.dirname(path))
-else:
-    sys.path.append(os.path.dirname(os.getcwd()))
+if path == '.' or not path:
+    path = os.getcwd()
+sys.path.append(os.path.dirname(path))
 
 import pyaes
 
@@ -66,7 +69,7 @@ class KATRunner(object):
         # at the end of file, run the test
         self.do_test()
 
-        print '%s: %3d OK %3d skipped' % (basename, self.cnt_ok, self.cnt_skipped)
+        print '%-20s: %3d OK' % (basename, self.cnt_ok)
 
     def do_test(self):
         aes = pyaes.new(self.key, self.mode, self.iv)
@@ -88,7 +91,9 @@ if __name__ == '__main__':
 
     files = sys.argv[1:]
     if not files:
-        files = glob.glob('KAT_AES/CBC*.txt') + glob.glob('KAT_AES/ECB*.txt')
+        cbc_files = glob.glob(os.path.join(path, 'KAT_AES', 'CBC*.txt'))
+        ecb_files = glob.glob(os.path.join(path, 'KAT_AES', 'ECB*.txt'))
+        files = cbc_files + ecb_files
         files.sort()
 
     for filename in files:
