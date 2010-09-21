@@ -8,6 +8,19 @@ Hopefully the code is readable and commented enough that it can serve as an
 introduction to the AES cipher for Python coders. In fact, it should go along
 well with the Stick Figure Guide to AES:
 http://www.moserware.com/2009/09/stick-figure-guide-to-advanced.html
+
+Contrary to intuition, this implementation numbers the 4x4 matrices from top to
+bottom for efficiency reasons::
+
+  0  4  8 12
+  1  5  9 13
+  2  6 10 14
+  3  7 11 15
+
+Effectively it's the transposition of what you'd expect. This actually makes
+the code simpler -- except the ShiftRows step, but hopefully the explanation
+there clears it up.
+
 """
 
 ####
@@ -106,12 +119,118 @@ class AES(object):
 
         self.exkey = exkey
 
+    def add_round_key(self, block, round):
+        """AddRoundKey step in AES. This is where the key is mixed into plaintext"""
+
+        offset = round * 16
+        for i in xrange(16):
+            block[i] ^= self.exkey[offset + i]
+
+        #print 'AddRoundKey:', block
+
+    def sub_bytes(self, block, sbox):
+        """SubBytes step, apply S-box to all bytes
+
+        Depending on whether encrypting or decrypting, a different sbox array
+        is passed in.
+        """
+
+        for i in xrange(16):
+            block[i] = sbox[block[i]]
+
+        #print 'SubBytes   :', block
+
+    def shift_rows(self, b):
+        """ShiftRows step. Shifts 2nd row to left by 1, 3rd row by 2, 4th row by 3
+
+        Since we're performing this on a transposed matrix, rows are
+        numbered from top to bottom::
+
+          0  4  8 12   ->    0  4  8 12    -- 1st row doesn't change
+          1  5  9 13   ->    5  9 13  1    -- row shifted to left by 1 (wraps around)
+          2  6 10 14   ->   10 14  2  6    -- shifted by 2
+          3  7 11 15   ->   15  3  7 11    -- shifted by 3
+        """
+
+        b[1], b[5], b[ 9], b[13] = b[ 5], b[ 9], b[13], b[ 1]
+        b[2], b[6], b[10], b[14] = b[10], b[14], b[ 2], b[ 6]
+        b[3], b[7], b[11], b[15] = b[15], b[ 3], b[ 7], b[11]
+
+        #print 'ShiftRows  :', b
+
+    def mix_columns(self, block):
+        """MixColumns step. Mixes the values in each column"""
+
+        # Cache global multiplication tables (see below)
+        mul_by_2 = gf_mul_by_2
+        mul_by_3 = gf_mul_by_3
+
+        # Since we're dealing with a transposed matrix, columns are already
+        # sequential
+        for i in xrange(4):
+            col = i * 4
+
+            v0, v1, v2, v3 = block[col : col+4]
+
+            block[col  ] = mul_by_2[v0] ^ v3 ^ v2 ^ mul_by_3[v1]
+            block[col+1] = mul_by_2[v1] ^ v0 ^ v3 ^ mul_by_3[v2]
+            block[col+2] = mul_by_2[v2] ^ v1 ^ v0 ^ mul_by_3[v3]
+            block[col+3] = mul_by_2[v3] ^ v2 ^ v1 ^ mul_by_3[v0]
+
+        #print 'MixColumns :', block
+
+    def encrypt_block(self, block):
+        """Encrypts a single block. This is the main AES function"""
+
+        # For efficiency reasons, the state between steps is transmitted via a
+        # mutable array, not returned.
+        self.add_round_key(block, 0)
+
+        for round in xrange(1, self.rounds):
+            self.sub_bytes(block, aes_sbox)
+            self.shift_rows(block)
+            self.mix_columns(block)
+            self.add_round_key(block, round)
+
+        self.sub_bytes(block, aes_sbox)
+        self.shift_rows(block)
+        # no mix_columns step in the last round
+        self.add_round_key(block, self.rounds)
+
     def encrypt(self, data):
-        raise NotImplementedError
+        """Encrypt data"""
+
+        if len(data) % self.block_size != 0:
+            raise ValueError, "Plaintext length must be multiple of 16"
+
+        block = array('B', data)
+        self.encrypt_block(block)
+
+        return block.tostring()
 
     def decrypt(self, data):
         raise NotImplementedError
 
+####
+
+def galois_multiply(a, b):
+    """Galois Field multiplicaiton for AES"""
+    p = 0
+    while b:
+        if b & 1:
+            p ^= a
+        a <<= 1
+        if a & 0x100:
+            a ^= 0x1b
+        b >>= 1
+
+    return p & 0xff
+
+# Precompute the multiplication tables for encryption
+gf_mul_by_2  = array('B', [galois_multiply(x,  2) for x in range(256)])
+gf_mul_by_3  = array('B', [galois_multiply(x,  3) for x in range(256)])
+
+####
 
 # Globals mandated by PEP 272:
 # http://www.python.org/dev/peps/pep-0272/
