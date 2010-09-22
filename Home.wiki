@@ -3,7 +3,7 @@
 === What is it? ===
 
 **pyaes** is
-* **an implementation of AES** (Advanced Encryption Standard) cipher in pure Python, including 128/192/256 bits
+* **an implementation of AES** (Advanced Encryption Standard) cipher in pure Python, including 128/192/256 bits with ECB & CBC modes
 * **easy to use:** it has a simple [[http://www.python.org/dev/peps/pep-0272/|PEP 272 cipher API]].
 * **not too slow:** it's as fast as Python permits without obfuscating the code
 * **well-tested:** it includes a test runner to check the operation against NIST published test vectors
