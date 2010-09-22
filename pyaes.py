@@ -130,7 +130,7 @@ class AES(object):
                 word[j] = aes_sbox[word[j]]
 
             # apply the Rcon table to the leftmost byte
-            word[0] = word[0] ^ aes_Rcon[i]
+            word[0] ^= aes_Rcon[i]
             #### end key schedule core
 
             for z in xrange(4):
@@ -219,9 +219,7 @@ class AES(object):
 
         # Since we're dealing with a transposed matrix, columns are already
         # sequential
-        for i in xrange(4):
-            col = i * 4
-
+        for col in xrange(0, 16, 4):
             v0, v1, v2, v3 = block[col : col+4]
 
             block[col  ] = mul_by_2[v0] ^ v3 ^ v2 ^ mul_by_3[v1]
@@ -242,9 +240,7 @@ class AES(object):
 
         # Since we're dealing with a transposed matrix, columns are already
         # sequential
-        for i in xrange(4):
-            col = i * 4
-
+        for col in xrange(0, 16, 4):
             v0, v1, v2, v3 = block[col : col+4]
 
             block[col  ] = mul_14[v0] ^ mul_9[v3] ^ mul_13[v2] ^ mul_11[v1]
