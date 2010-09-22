@@ -8,6 +8,7 @@
 * **not too slow:** it's as fast as Python permits without obfuscating the code
 * **well-tested:** it includes a test runner to check the operation against NIST published test vectors
 * **raw cipher only:** it does not do padding/verification/key derivation -- any secure crypto protocol should. If that's what you want, [[http://www.keyczar.org/|Keyczar]] is more useful
+* **liberal:** Licensed under the permissive MIT license.
 
 === How? ===
 
