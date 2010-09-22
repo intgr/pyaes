@@ -57,6 +57,7 @@ MODE_CBC = 2
 #MODE_CTR = 6
 
 block_size = 16
+# variable length key: 16, 24 or 32 bytes
 key_size = None
 
 def new(key, mode, IV=None):
@@ -186,8 +187,8 @@ class AES(object):
     def shift_rows(self, b):
         """ShiftRows step. Shifts 2nd row to left by 1, 3rd row by 2, 4th row by 3
 
-        Since we're performing this on a transposed matrix, rows are
-        numbered from top to bottom::
+        Since we're performing this on a transposed matrix, cells are numbered
+        from top to bottom first::
 
           0  4  8 12   ->    0  4  8 12    -- 1st row doesn't change
           1  5  9 13   ->    5  9 13  1    -- row shifted to left by 1 (wraps around)
@@ -254,7 +255,7 @@ class AES(object):
         """Encrypts a single block. This is the main AES function"""
 
         # For efficiency reasons, the state between steps is transmitted via a
-        # mutable array, not returned.
+        # mutable array, not returned
         self.add_round_key(block, 0)
 
         for round in xrange(1, self.rounds):
@@ -272,10 +273,10 @@ class AES(object):
         """Decrypts a single block. This is the main AES decryption function"""
 
         # For efficiency reasons, the state between steps is transmitted via a
-        # mutable array, not returned.
+        # mutable array, not returned
         self.add_round_key(block, self.rounds)
 
-        # count rounds down from 15 ... 1
+        # count rounds down from (self.rounds) ... 1
         for round in xrange(self.rounds-1, 0, -1):
             self.shift_rows_inv(block)
             self.sub_bytes(block, aes_inv_sbox)
@@ -305,7 +306,7 @@ class ECBMode(object):
         """Perform ECB mode with the given function"""
 
         if len(data) % self.block_size != 0:
-            raise ValueError, "Plaintext length must be multiple of 16"
+            raise ValueError, "Input length must be multiple of 16"
 
         block_size = self.block_size
         data = array('B', data)
