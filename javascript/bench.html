@@ -1,0 +1,87 @@
+<html>
+  <head>
+    <script src="./jsaes.js"></script>
+  </head>
+  <body>
+  <script>
+    function repeat(str, num) {
+      return new Array(num+1).join(str);
+    }
+    function toarray(str) {
+      arr = new Array;
+      for(var i = 0; i < str.length; i++) {
+        arr[i] = str.charCodeAt(i);
+      }
+      return arr;
+    }
+    function write(str) {
+      var output = document.getElementById('output');
+      output.innerHTML += str + '<br />';
+    }
+
+    plaintext = toarray(
+      // 69 x 1536 bytes = 105984
+      repeat("This is a very long test. What could possibly go wrong? More text... ", 1536)
+      //repeat("This is a very long test. What could possibly go wrong? More text... ", 256)
+    );
+
+    iv     = [185,222, 82, 61, 30, 21,136,191, 70,249,  8, 76,183,150,104, 79];
+    key128 = [ 58,252,168, 72,140,224,213, 19,106,186,135,149, 63,189,152,110];
+    key256 = [230,203, 81,223,131,148,205, 44,120,  5, 92,146,165, 95,219, 68,
+               32, 32, 52,253,171,215,101,254,235, 18,183,173, 97, 85, 73,114];
+
+    function test_aes() {
+      var aes = jsaes.create(key256, jsaes.mode.CBC, iv);
+      var ct = aes.encrypt(plaintext);
+      var aes = jsaes.create(key256, jsaes.mode.CBC, iv);
+      var pt = aes.decrypt(ct);
+
+      if(pt.length != plaintext.length){
+        write("Failed decryption: lengths differ");
+        return;
+      }
+
+      for(var i = 0; i < pt.length; i++) {
+        if(pt[i] != plaintext[i]) {
+          write("Failed decryption: contents differ");
+          return;
+        }
+      }
+
+      write("Test OK!");
+    }
+
+    function benchmark(key, func) {
+      var aes = jsaes.create(key, jsaes.mode.CBC, iv);
+      aes[func](plaintext);
+    }
+
+    function run(key, func) {
+      var t0 = new Date().getTime();
+      benchmark(key, func);
+      var t1 = new Date().getTime();
+      var dur = (t1 - t0) * 0.001;
+
+      bytes = plaintext.length;
+      var cpb = (3000000000 / (bytes/dur));
+      var kbs = ((bytes/dur)/1024);
+      // return '%0.4f  %0.0f cpb %0.1f kB/s' % (dur, cpb, kbs)
+      return dur.toFixed(3) + '  ' + cpb.toFixed(0) + ' cpb ' + kbs.toFixed(1) + ' kB/s';
+    }
+
+    function quicktest() {
+      var stats = run(key128, 'encrypt');
+      write('AES-128-CBC: ' + stats);
+
+      var stats = run(key256, 'encrypt')
+      write('AES-256-CBC: ' + stats);
+    }
+  </script>
+
+  <button onclick="test_aes();">Test</button>
+  <button onclick="quicktest();">Quick benchmark</button>
+  <div id="output">
+  </div>
+  </body>
+</html>
+
