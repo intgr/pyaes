@@ -1,8 +1,8 @@
-/* Simple AES cipher implementation in pure JavaScript
+/* Simple AES cipher implementation in JavaScript
  *
  * Hopefully the code is readable and commented enough that it can serve as an
- * introduction to the AES cipher for Python coders. In fact, it should go along
- * well with the Stick Figure Guide to AES:
+ * introduction to the AES cipher for JavaScript coders. In fact, it should go
+ * along well with the Stick Figure Guide to AES:
  * http://www.moserware.com/2009/09/stick-figure-guide-to-advanced.html
  *
  * Contrary to intuition, this implementation numbers the 4x4 matrices from top to
@@ -51,11 +51,6 @@ jsaes.create = function create(key, mode, iv) {
         return new jsaes.ECBMode(new jsaes.AES(key));
 
     else if (mode == jsaes.mode.CBC) {
-        if (!iv) {
-            // TODO raise ValueError, "CBC mode needs an IV value!"
-            return;
-        }
-        //return jsaes.CBCMode(jsaes.AES(key), iv);
         aes = new jsaes.AES(key);
         return new jsaes.CBCMode(aes, iv);
     }
@@ -78,11 +73,9 @@ jsaes.AES.prototype.setKey = function setKey(key) {
     else if (this.keySize == 24)
         this.rounds=12;
     else if (this.keySize == 32)
-            this.rounds=14;
-    else {
-        // TODO throw ValueError('Key length must be 16, 24 or 32 bytes');
-        return;
-    }
+        this.rounds=14;
+    else
+        throw new Error("Key length must be 16, 24 or 32 bytes");
 
     this.expandKey();
 }
@@ -100,18 +93,17 @@ jsaes.AES.prototype.expandKey = function expandKey() {
     var exKey;
     var j, z;
 
-    // XXX exKey=py2js_map(ord, this.key);
     // The expanded key starts with the actual key itself; copy it
     exKey = this.key.slice();
 
     // extra key expansion steps
     var extraCount;
     if (this.keySize == 16)
-        var extraCount=0;
+        extraCount = 0;
     else if (this.keySize == 24)
-        var extraCount=2;
+        extraCount = 2;
     else
-        var extraCount=3;
+        extraCount = 3;
 
     // 4-byte temporary variable for key expansion
     var word = exKey.slice(-4);
@@ -358,13 +350,11 @@ jsaes.ECBMode.prototype.decrypt = function decrypt(data) {
 
 // Perform ECB mode with the given function
 jsaes.ECBMode.prototype.ecb = function ecb(data, blockFunc) {
-    if (data.length % blockSize != 0) {
-        // TODO throw ValueError('Input length must be multiple of 16');
-        return;
-    }
     var blockSize = this.blockSize;
 
-    // XXX var data = py2js_map(ord, data);
+    if (data.length % blockSize != 0)
+        throw new Error("Input length must be multiple of 16");
+
     var result = new Array;
 
     for(var offset = 0; offset < data.length; offset += blockSize) {
@@ -391,6 +381,12 @@ jsaes.ECBMode.prototype.ecb = function ecb(data, blockFunc) {
  * http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Cipher-block_chaining_.28CBC.29
  */
 jsaes.CBCMode = function CBCMode(cipher, iv) {
+    if (!iv)
+        throw new Error("CBC mode needs an IV value!");
+
+    if (iv.length != cipher.blockSize)
+        throw new Error("IV must be exactly 16 bytes long");
+
     this.cipher = cipher;
     this.blockSize = cipher.blockSize;
     this.iv = iv;
@@ -400,12 +396,9 @@ jsaes.CBCMode = function CBCMode(cipher, iv) {
 jsaes.CBCMode.prototype.encrypt = function encrypt(data) {
     var blockSize = this.blockSize;
 
-    if (data.length % blockSize != 0) {
-        // TODO throw ValueError('Ciphertext length must be multiple of 16');
-        return;
-    }
+    if (data.length % blockSize != 0)
+        throw new Error("Input length must be multiple of 16");
 
-    // XXX var data = py2js_map(ord, data);
     var result = new Array;
     var iv = this.iv;
 
@@ -433,12 +426,9 @@ jsaes.CBCMode.prototype.encrypt = function encrypt(data) {
 jsaes.CBCMode.prototype.decrypt = function decrypt(data) {
     var blockSize = this.blockSize;
 
-    if (data.length % blockSize != 0) {
-        // TODO throw ValueError('Ciphertext length must be multiple of 16');
-        return;
-    }
+    if (data.length % blockSize != 0)
+        throw new Error("Input length must be multiple of 16");
 
-    // XXX var data = py2js_map(ord, data);
     var result = new Array;
     var iv = this.iv;
 
