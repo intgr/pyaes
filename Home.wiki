@@ -4,7 +4,7 @@
 * **easy to use:** it has a simple [[http://www.python.org/dev/peps/pep-0272/|PEP 272 cipher API]], like PyCrypto
 * **not too slow:** it's as fast as Python permits without obfuscating the code
 * **well-tested:** it includes a test runner to check the operation against NIST published test vectors
-* **raw cipher only:** it does not do padding/verification/key derivation -- any secure crypto protocol should. If that's what you want, [[http://www.keyczar.org/|Keyczar]] is more useful
+* **raw cipher only:** it does not do padding/verification/key derivation -- any secure crypto protocol should
 * **liberal:** Licensed under the permissive MIT license
 
 === How? ===
