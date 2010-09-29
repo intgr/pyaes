@@ -15,7 +15,8 @@
 >>> cryptor = pyaes.new('secret_secretkey', pyaes.MODE_CBC, IV='_some_random_iv_')
 >>> ciphertext = cryptor.encrypt('This is a test! What could possibly go wrong?___')
 >>> ciphertext
-'S8\n\x81\xee3\x86\xd6\t\xf8\xc6\xde~\xdc\x14H#\xd2\xe1\xda\xd79\x81\xb7>\xdd\xed\xaa\xed\xcfp\xee\xc6\x8f(\xdc\xb1A"\xe9[\x9f{\x8e\xa6F\xfbQ'
+'S8\n\x81\xee3\x86\xd6\t\xf8\xc6\xde~\xdc\x14H#\xd2\xe1\xda\xd79\x81\xb7'
+'>\xdd\xed\xaa\xed\xcfp\xee\xc6\x8f(\xdc\xb1A"\xe9[\x9f{\x8e\xa6F\xfbQ'
 >>> decryptor = pyaes.new('secret_secretkey', pyaes.MODE_CBC, IV='_some_random_iv_')
 >>> decryptor.decrypt(ciphertext)
 'This is a test! What could possibly go wrong?___'
