@@ -24,7 +24,7 @@
 
 === Why? ===
 
-The main motivation for writing this was to provide the [[http://pypy.org/|PyPy project]] with a crypto benchmark for [[http://speed.pypy.org/|speed.pypy.org]]. As of September 2010 this benchmark is part of the PyPy benchmarks repository, but not yet visible on the website.
+The main motivation for writing this was to provide the [[http://pypy.org/|PyPy project]] with a crypto benchmark for [[http://speed.pypy.org/|speed.pypy.org]].
 
 I was looking at the [[http://code.google.com/p/slowaes/|SlowAES project]] first; it was very slow, so I created [[/intgr/slowaes-optimized|an optimization branch]] of it. However, I still wasn't happy with the way the code was written. Its legacy as C code that was converted to JavaScript, then converted to Python, was showing. The API was also weird by Python standards.
 
