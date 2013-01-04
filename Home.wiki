@@ -22,6 +22,10 @@
 'This is a test! What could possibly go wrong?___'
 }}}
 
+=== Caveats ===
+
+Please beware that the nature of Python makes cryptography susceptible to [[https://en.wikipedia.org/wiki/Timing_attack|timing attacks]]. Python (and other interpreted languages) introduce lots of data-dependant branches and have a higher cache footprint than native code. Their general slowness also makes it easier to measure timing variations. **When in doubt, always use native code cryptography like [[https://www.dlitz.net/software/pycrypto/|PyCrypto]]**.
+
 === Why? ===
 
 The main motivation for writing this was to provide the [[http://pypy.org/|PyPy project]] with a crypto benchmark for [[http://speed.pypy.org/|speed.pypy.org]].
