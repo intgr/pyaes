@@ -24,7 +24,7 @@
 
 === Caveats ===
 
-Please beware that the nature of Python makes cryptography susceptible to [[https://en.wikipedia.org/wiki/Timing_attack|timing attacks]]. Python (and other interpreted languages) introduce lots of data-dependant branches and have a higher cache footprint than native code. Their general slowness also makes it easier to measure timing variations. **When in doubt, always use native code cryptography like [[https://www.dlitz.net/software/pycrypto/|PyCrypto]]**.
+Please beware that the nature of Python makes cryptography susceptible to [[https://en.wikipedia.org/wiki/Timing_attack|timing attacks]]. Python (and other interpreted languages) introduce lots of data-dependent branches and have a higher cache footprint than native code. Their general slowness also makes it easier to measure timing variations. **When in doubt, always use native code cryptography like [[https://www.dlitz.net/software/pycrypto/|PyCrypto]]**.
 
 === Why? ===
 
