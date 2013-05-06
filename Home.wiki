@@ -5,7 +5,15 @@
 * **not too slow:** it's as fast as Python permits without obfuscating the code
 * **well-tested:** it includes a test runner to check the operation against NIST published test vectors
 * **raw cipher only:** it does not do padding/verification/key derivation -- any secure crypto protocol should
-* **liberal:** Licensed under the permissive MIT license
+* **liberal:** Licensed under the [[http://opensource.org/licenses/MIT|permissive MIT license]]
+
+=== Show me the code! ===
+
+**[[/intgr/pyaes/src/tip/pyaes.py|View in browser]]** or **[[/intgr/pyaes/raw/tip/pyaes.py|Download]]** or check out the source with Mercurial:
+
+{{{
+hg clone https://bitbucket.org/intgr/pyaes
+}}}
 
 === How? ===
 
@@ -39,7 +47,3 @@ So pyaes was born! Written from scratch to be Pythonic and benchmark-quality.
 Even though pyaes is an optimized Python implementation, Python itself is still slow. It should be capable of around **80 kB/s** on modern hardware; that's **1000x slower** than pure C implementations.
 
 If you have any ideas how to make it faster, I'm interested in hearing your thoughts. :)
-
-=== Show me the code! ===
-
-[[/intgr/pyaes/src/tip/pyaes.py|View in browser]] or [[/intgr/pyaes/raw/tip/pyaes.py|Download]]
