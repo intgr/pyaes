@@ -3,7 +3,7 @@
  * Hopefully the code is readable and commented enough that it can serve as an
  * introduction to the AES cipher for JavaScript coders. In fact, it should go
  * along well with the Stick Figure Guide to AES:
- * http://www.moserware.com/2009/09/stick-figure-guide-to-advanced.html
+ * https://www.moserware.com/2009/09/stick-figure-guide-to-advanced.html
  *
  * Contrary to intuition, this implementation numbers the 4x4 matrices from top to
  * bottom for efficiency reasons:
@@ -87,7 +87,7 @@ jsaes.AES.prototype.setKey = function setKey(key) {
  * schedule in advance. Almost all implementations do this.
  *
  * Here's a description of AES key schedule:
- * http://en.wikipedia.org/wiki/Rijndael_key_schedule
+ * https://en.wikipedia.org/wiki/Rijndael_key_schedule
  */
 jsaes.AES.prototype.expandKey = function expandKey() {
     var exKey;
@@ -378,7 +378,7 @@ jsaes.ECBMode.prototype.ecb = function ecb(data, blockFunc) {
  * preceding it; decryption is simply the inverse.
  *
  * A better explanation of CBC can be found here:
- * http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Cipher-block_chaining_.28CBC.29
+ * https://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Cipher-block_chaining_.28CBC.29
  */
 jsaes.CBCMode = function CBCMode(cipher, iv) {
     if (!iv)
@@ -456,7 +456,7 @@ jsaes.CBCMode.prototype.decrypt = function decrypt(data) {
  * byte value. Since it's designed to be reversible, each value occurs only once
  * in the S-box
  *
- * More information: http://en.wikipedia.org/wiki/Rijndael_S-box
+ * More information: https://en.wikipedia.org/wiki/Rijndael_S-box
  */
 jsaes.sbox = [
      99,124,119,123,242,107,111,197, 48,  1,103, 43,254,215,171,118,
@@ -502,7 +502,7 @@ jsaes.invSbox = [
 /* The Rcon table is used in AES's key schedule (key expansion)
  * It's a pre-computed table of exponentation of 2 in AES's finite field
  *
- * More information: http://en.wikipedia.org/wiki/Rijndael_key_schedule
+ * More information: https://en.wikipedia.org/wiki/Rijndael_key_schedule
  */
 jsaes.rcon = [
     141,  1,  2,  4,  8, 16, 32, 64,128, 27, 54,108,216,171, 77,154,

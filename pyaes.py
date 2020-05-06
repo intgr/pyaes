@@ -1,6 +1,6 @@
 """Simple AES cipher implementation in pure Python following PEP-272 API
 
-Homepage: https://bitbucket.org/intgr/pyaes/
+Homepage: https://github.com/intgr/pyaes
 
 The goal of this module is to be as fast as reasonable in Python while still
 being Pythonic and readable/understandable. It is licensed under the permissive
@@ -9,7 +9,7 @@ MIT license.
 Hopefully the code is readable and commented enough that it can serve as an
 introduction to the AES cipher for Python coders. In fact, it should go along
 well with the Stick Figure Guide to AES:
-http://www.moserware.com/2009/09/stick-figure-guide-to-advanced.html
+https://www.moserware.com/2009/09/stick-figure-guide-to-advanced.html
 
 Contrary to intuition, this implementation numbers the 4x4 matrices from top to
 bottom for efficiency reasons::
@@ -51,7 +51,7 @@ there clears it up.
 from array import array
 
 # Globals mandated by PEP 272:
-# http://www.python.org/dev/peps/pep-0272/
+# https://www.python.org/dev/peps/pep-0272/
 MODE_ECB = 1
 MODE_CBC = 2
 #MODE_CTR = 6
@@ -104,7 +104,7 @@ class AES(object):
         # schedule in advance. Almost all implementations do this.
         #
         # Here's a description of AES key schedule:
-        # http://en.wikipedia.org/wiki/Rijndael_key_schedule
+        # https://en.wikipedia.org/wiki/Rijndael_key_schedule
 
         # The expanded key starts with the actual key itself
         exkey = array('B', self.key)
@@ -338,7 +338,7 @@ class CBCMode(object):
     """
 
     # A better explanation of CBC can be found here:
-    # http://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Cipher-block_chaining_.28CBC.29
+    # https://en.wikipedia.org/wiki/Block_cipher_modes_of_operation#Cipher-block_chaining_.28CBC.29
 
     def __init__(self, cipher, IV):
         self.cipher = cipher
@@ -427,7 +427,7 @@ gf_mul_by_14 = array('B', [galois_multiply(x, 14) for x in range(256)])
 # byte value. Since it's designed to be reversible, each value occurs only once
 # in the S-box
 #
-# More information: http://en.wikipedia.org/wiki/Rijndael_S-box
+# More information: https://en.wikipedia.org/wiki/Rijndael_S-box
 
 aes_sbox = array('B',
     '637c777bf26b6fc53001672bfed7ab76'
@@ -473,7 +473,7 @@ aes_inv_sbox = array('B',
 # The Rcon table is used in AES's key schedule (key expansion)
 # It's a pre-computed table of exponentation of 2 in AES's finite field
 #
-# More information: http://en.wikipedia.org/wiki/Rijndael_key_schedule
+# More information: https://en.wikipedia.org/wiki/Rijndael_key_schedule
 
 aes_Rcon = array('B',
     '8d01020408102040801b366cd8ab4d9a'

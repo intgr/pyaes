@@ -3,7 +3,7 @@
 """Test the AES implementation against NIST published AES KAT test vectors
 
 Actual data files are in the KAT_AES/ directory. Can be downloaded here:
-http://csrc.nist.gov/groups/STM/cavp/index.html
+https://csrc.nist.gov/projects/cryptographic-algorithm-validation-program
 
 Apologies for the crudeness of this script, but porting it to the Python
 unittest framework seemed like a waste of time.
