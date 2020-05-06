@@ -1,24 +1,19 @@
-== pyaes is: ==
+## pyaes is:
 
 * **an implementation of AES** (Advanced Encryption Standard) cipher in **pure Python**, including ECB & CBC modes
-* **easy to use:** it has a simple [[http://www.python.org/dev/peps/pep-0272/|PEP 272 cipher API]], like PyCrypto
+* **easy to use:** it has a simple [PEP 272 cipher API](https://www.python.org/dev/peps/pep-0272/), like PyCrypto
 * **not too slow:** it's as fast as Python permits without obfuscating the code
 * **well-tested:** it includes a test runner to check the operation against NIST published test vectors
 * **raw cipher only:** it does not do padding/verification/key derivation -- any secure crypto protocol should
-* **liberal:** Licensed under the [[http://opensource.org/licenses/MIT|permissive MIT license]]
+* **liberal:** Licensed under the [permissive MIT license](https://opensource.org/licenses/MIT)
 
-=== Show me the code! ===
+### Show me the code!
 
-**[[/intgr/pyaes/src/tip/pyaes.py|View in browser]]** or **[[/intgr/pyaes/raw/tip/pyaes.py|Download]]** or check out the source with Mercurial:
+**[View in browser](./pyaes.py)**
 
-{{{
-hg clone https://bitbucket.org/intgr/pyaes
-}}}
+### How?
 
-=== How? ===
-
-{{{
-#!python
+```python
 >>> import pyaes
 >>> cryptor = pyaes.new('secret_secretkey', pyaes.MODE_CBC, IV='_some_random_iv_')
 >>> ciphertext = cryptor.encrypt('This is a test! What could possibly go wrong?___')
@@ -28,21 +23,32 @@ hg clone https://bitbucket.org/intgr/pyaes
 >>> decryptor = pyaes.new('secret_secretkey', pyaes.MODE_CBC, IV='_some_random_iv_')
 >>> decryptor.decrypt(ciphertext)
 'This is a test! What could possibly go wrong?___'
-}}}
+```
 
-=== Caveats ===
+### Caveats
 
-Please beware that the nature of Python makes cryptography susceptible to [[https://en.wikipedia.org/wiki/Timing_attack|timing attacks]]. Python (and other interpreted languages) introduce lots of data-dependent branches and have a higher cache footprint than native code. Their general slowness also makes it easier to measure timing variations. **When in doubt, always use native code cryptography like [[https://www.dlitz.net/software/pycrypto/|PyCrypto]]**.
+Please beware that the nature of Python makes cryptography susceptible to
+[timing attacks](https://en.wikipedia.org/wiki/Timing_attack). Python (and
+other interpreted languages) introduce lots of data-dependent branches and have
+a higher cache footprint than native code. Their general slowness also makes it
+easier to measure timing variations. **When in doubt, always use native code
+cryptography like [pycryptodome](https://www.pycryptodome.org/)**.
 
-=== Why? ===
+### Why?
 
-The main motivation for writing this was to provide the [[http://pypy.org/|PyPy project]] with a crypto benchmark for [[http://speed.pypy.org/|speed.pypy.org]].
+The main motivation for writing this was to provide the
+[PyPy project](https://www.pypy.org/) with a crypto benchmark for
+[speed.pypy.org](https://speed.pypy.org/).
 
-I was looking at the [[http://code.google.com/p/slowaes/|SlowAES project]] first; it was very slow, so I created [[/intgr/slowaes-optimized|an optimization branch]] of it. However, I still wasn't happy with the way the code was written. Its legacy as C code that was converted to JavaScript, then converted to Python, was showing. The API was also weird by Python standards.
+I was looking at the [SlowAES project](https://code.google.com/archive/p/slowaes/)
+first; it was very slow, so I created an optimization branch of it. However, I
+still wasn't happy with the way the code was written. Its legacy as C code that
+was converted to JavaScript, then converted to Python, was showing. The API was
+also weird by Python standards.
 
 So pyaes was born! Written from scratch to be Pythonic and benchmark-quality.
 
-=== Speed ===
+### Speed
 
 Even though pyaes is an optimized Python implementation, Python itself is still slow. It should be capable of around **80 kB/s** on modern hardware; that's **1000x slower** than pure C implementations.
 
